@@ -74,7 +74,7 @@ public class AlterarNomeDisciplina extends JFrame {
 					JOptionPane.showMessageDialog(null, "Novo nome da precisa ser preenchido.", "Atenção",
 							JOptionPane.WARNING_MESSAGE);
 				} else {
-					prefs.put(String.format("NOME%d", disciplinas.getSelectedIndex() + 1), nome.getText());
+					prefs.put(String.format("DISCIPLINA_NOME_%02d", disciplinas.getSelectedIndex() + 1), nome.getText());
 					JOptionPane.showMessageDialog(null, "Nome alterado com sucesso.", "Atenção",
 							JOptionPane.INFORMATION_MESSAGE);
 					atualizarDisciplinas();

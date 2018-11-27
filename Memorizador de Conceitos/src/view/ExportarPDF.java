@@ -5,6 +5,7 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.prefs.BackingStoreException;
@@ -25,6 +26,7 @@ import com.itextpdf.io.font.FontConstants;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.List;
@@ -32,6 +34,7 @@ import com.itextpdf.layout.element.ListItem;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.property.ListNumberingType;
 import com.itextpdf.layout.property.TextAlignment;
+import com.itextpdf.layout.property.VerticalAlignment;
 
 /**
  * @author Madson Paulo Alexandre da Silva
@@ -76,6 +79,7 @@ public class ExportarPDF extends JFrame {
 	private JCheckBox chckbxAssuntoEmMaisculo;
 	private JCheckBox chckbxAssuntoEmNegrito;
 	public static Preferences prefs = Preferences.userRoot().node(Main.CONFIGS);
+	private JCheckBox chckbxNumeroDaPagina;
 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -235,6 +239,10 @@ public class ExportarPDF extends JFrame {
 
 			document.add(listaDisciplinas);
 			document.close();
+			pdf.close();
+			if (chckbxNumeroDaPagina.isSelected()) {
+				adicionarPagina();
+			}
 
 			JOptionPane.showMessageDialog(null, "Arquivo gerado com sucesso.", "Atenção",
 					JOptionPane.INFORMATION_MESSAGE);
@@ -245,44 +253,72 @@ public class ExportarPDF extends JFrame {
 			e.printStackTrace();
 		}
 
-		prefs.put("Titulo", titulo.getText());
-		prefs.put("Subtitulo", subtitulo.getText());
+		prefs.put("EXPORTAR_TITULO", titulo.getText());
+		prefs.put("EXPORTAR_SUBTITULO", subtitulo.getText());
+	}
+
+	private void adicionarPagina() {
+		try {
+			PdfDocument pdf = new PdfDocument(new PdfReader(diretorio.getText()),
+					new PdfWriter(FileSystemView.getFileSystemView().getHomeDirectory() + "\\" + "teste.pdf"));
+			Document document = new Document(pdf);
+
+			String fonte = getFonte();
+			float tamanho = Float.valueOf(fonteTamanho.getSelectedItem().toString());
+			PdfFont font = PdfFontFactory.createFont(fonte);
+
+			for (int i = 1; i <= pdf.getNumberOfPages(); i++) {
+				float x = pdf.getPage(i).getPageSize().getWidth() / 2;
+				float y = pdf.getPage(i).getPageSize().getBottom() + 20;
+				Paragraph header = new Paragraph("Página " + i).setFont(font).setFontSize(tamanho - 2);
+				document.showTextAligned(header, x, y, i, TextAlignment.CENTER, VerticalAlignment.BOTTOM, 0);
+			}
+			document.close();
+
+			File antigo = new File(diretorio.getText());
+			antigo.delete();
+			File novo = new File(FileSystemView.getFileSystemView().getHomeDirectory() + "\\" + "teste.pdf");
+			File novoNome = new File(diretorio.getText());
+			novo.renameTo(novoNome);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * Preenche campos e marca checkboxes, mantendo os dados preenchidos na geração de .pdfs anteriores
 	 */
 	private void ajusteInicial() {
-		d1.setText(prefs.get("NOME1", "Disciplina 01"));
-		d1.setSelected(prefs.getBoolean("DISCIPLINA1", false));
-		d2.setText(prefs.get("NOME2", "Disciplina 02"));
-		d2.setSelected(prefs.getBoolean("DISCIPLINA2", false));
-		d3.setText(prefs.get("NOME3", "Disciplina 03"));
-		d3.setSelected(prefs.getBoolean("DISCIPLINA3", false));
-		d4.setText(prefs.get("NOME4", "Disciplina 04"));
-		d4.setSelected(prefs.getBoolean("DISCIPLINA4", false));
-		d5.setText(prefs.get("NOME5", "Disciplina 05"));
-		d5.setSelected(prefs.getBoolean("DISCIPLINA5", false));
-		d6.setText(prefs.get("NOME6", "Disciplina 06"));
-		d6.setSelected(prefs.getBoolean("DISCIPLINA6", false));
-		d7.setText(prefs.get("NOME7", "Disciplina 07"));
-		d7.setSelected(prefs.getBoolean("DISCIPLINA7", false));
-		d8.setText(prefs.get("NOME8", "Disciplina 08"));
-		d8.setSelected(prefs.getBoolean("DISCIPLINA8", false));
-		d9.setText(prefs.get("NOME9", "Disciplina 09"));
-		d9.setSelected(prefs.getBoolean("DISCIPLINA9", false));
-		d10.setText(prefs.get("NOME10", "Disciplina 10"));
-		d10.setSelected(prefs.getBoolean("DISCIPLINA10", false));
-		d11.setText(prefs.get("NOME11", "Disciplina 11"));
-		d11.setSelected(prefs.getBoolean("DISCIPLINA11", false));
-		d12.setText(prefs.get("NOME12", "Disciplina 12"));
-		d12.setSelected(prefs.getBoolean("DISCIPLINA12", false));
-		d13.setText(prefs.get("NOME13", "Disciplina 13"));
-		d13.setSelected(prefs.getBoolean("DISCIPLINA13", false));
-		d14.setText(prefs.get("NOME14", "Disciplina 14"));
-		d14.setSelected(prefs.getBoolean("DISCIPLINA14", false));
-		d15.setText(prefs.get("NOME15", "Disciplina 15"));
-		d15.setSelected(prefs.getBoolean("DISCIPLINA15", false));
+		d1.setText(prefs.get("DISCIPLINA_NOME_01", "Disciplina 01"));
+		d1.setSelected(prefs.getBoolean("DISCIPLINA_ATIVA_01", false));
+		d2.setText(prefs.get("DISCIPLINA_NOME_02", "Disciplina 02"));
+		d2.setSelected(prefs.getBoolean("DISCIPLINA_ATIVA_02", false));
+		d3.setText(prefs.get("DISCIPLINA_NOME_03", "Disciplina 03"));
+		d3.setSelected(prefs.getBoolean("DISCIPLINA_ATIVA_03", false));
+		d4.setText(prefs.get("DISCIPLINA_NOME_04", "Disciplina 04"));
+		d4.setSelected(prefs.getBoolean("DISCIPLINA_ATIVA_04", false));
+		d5.setText(prefs.get("DISCIPLINA_NOME_05", "Disciplina 05"));
+		d5.setSelected(prefs.getBoolean("DISCIPLINA_ATIVA_05", false));
+		d6.setText(prefs.get("DISCIPLINA_NOME_06", "Disciplina 06"));
+		d6.setSelected(prefs.getBoolean("DISCIPLINA_ATIVA_06", false));
+		d7.setText(prefs.get("DISCIPLINA_NOME_07", "Disciplina 07"));
+		d7.setSelected(prefs.getBoolean("DISCIPLINA_ATIVA_07", false));
+		d8.setText(prefs.get("DISCIPLINA_NOME_08", "Disciplina 08"));
+		d8.setSelected(prefs.getBoolean("DISCIPLINA_ATIVA_08", false));
+		d9.setText(prefs.get("DISCIPLINA_NOME_09", "Disciplina 09"));
+		d9.setSelected(prefs.getBoolean("DISCIPLINA_ATIVA_09", false));
+		d10.setText(prefs.get("DISCIPLINA_NOME_10", "Disciplina 10"));
+		d10.setSelected(prefs.getBoolean("DISCIPLINA_ATIVA_10", false));
+		d11.setText(prefs.get("DISCIPLINA_NOME_11", "Disciplina 11"));
+		d11.setSelected(prefs.getBoolean("DISCIPLINA_ATIVA_11", false));
+		d12.setText(prefs.get("DISCIPLINA_NOME_12", "Disciplina 12"));
+		d12.setSelected(prefs.getBoolean("DISCIPLINA_ATIVA_12", false));
+		d13.setText(prefs.get("DISCIPLINA_NOME_13", "Disciplina 13"));
+		d13.setSelected(prefs.getBoolean("DISCIPLINA_ATIVA_13", false));
+		d14.setText(prefs.get("DISCIPLINA_NOME_14", "Disciplina 14"));
+		d14.setSelected(prefs.getBoolean("DISCIPLINA_ATIVA_14", false));
+		d15.setText(prefs.get("DISCIPLINA_NOME_15", "Disciplina 15"));
+		d15.setSelected(prefs.getBoolean("DISCIPLINA_ATIVA_15", false));
 
 		d1.setToolTipText(d1.getText());
 		d2.setToolTipText(d2.getText());
@@ -301,8 +337,8 @@ public class ExportarPDF extends JFrame {
 		d15.setToolTipText(d15.getText());
 
 		diretorio.setText(FileSystemView.getFileSystemView().getHomeDirectory() + "\\" + NOME_PADRAO);
-		titulo.setText(prefs.get("Titulo", "Título"));
-		subtitulo.setText(prefs.get("Subtitulo", "Subtítulo"));
+		titulo.setText(prefs.get("EXPORTAR_TITULO", "Título"));
+		subtitulo.setText(prefs.get("EXPORTAR_SUBTITULO", "Subtítulo"));
 	}
 
 	public ExportarPDF() {
@@ -497,50 +533,62 @@ public class ExportarPDF extends JFrame {
 		chckbxDisciplinaMaiusculo = new JCheckBox("Disciplina em Mai\u00FAsculo");
 		chckbxDisciplinaMaiusculo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				prefs.putBoolean("DiscMaisculo", chckbxDisciplinaMaiusculo.isSelected());
+				prefs.putBoolean("EXPORTAR_DISCIPLINA_MAIUSCULO", chckbxDisciplinaMaiusculo.isSelected());
 			}
 		});
 		chckbxDisciplinaMaiusculo.setFocusable(false);
 		chckbxDisciplinaMaiusculo.setFont(new Font("Times New Roman", Font.BOLD, 14));
 		chckbxDisciplinaMaiusculo.setBounds(217, 135, 208, 23);
-		chckbxDisciplinaMaiusculo.setSelected(prefs.getBoolean("DiscMaisculo", false));
+		chckbxDisciplinaMaiusculo.setSelected(prefs.getBoolean("EXPORTAR_DISCIPLINA_MAIUSCULO", false));
 		panel_1.add(chckbxDisciplinaMaiusculo);
 
 		chckbxDisciplinaEmNegrito = new JCheckBox("Disciplina em Negrito");
 		chckbxDisciplinaEmNegrito.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				prefs.putBoolean("DiscNegrito", chckbxDisciplinaEmNegrito.isSelected());
+				prefs.putBoolean("EXPORTAR_DISCIPLINA_NEGRITO", chckbxDisciplinaEmNegrito.isSelected());
 			}
 		});
 		chckbxDisciplinaEmNegrito.setFont(new Font("Times New Roman", Font.BOLD, 14));
 		chckbxDisciplinaEmNegrito.setFocusable(false);
 		chckbxDisciplinaEmNegrito.setBounds(428, 135, 208, 23);
-		chckbxDisciplinaEmNegrito.setSelected(prefs.getBoolean("DiscNegrito", false));
+		chckbxDisciplinaEmNegrito.setSelected(prefs.getBoolean("EXPORTAR_DISCIPLINA_NEGRITO", false));
 		panel_1.add(chckbxDisciplinaEmNegrito);
 
 		chckbxAssuntoEmMaisculo = new JCheckBox("Assunto em Mai\u00FAsculo");
 		chckbxAssuntoEmMaisculo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				prefs.putBoolean("AssuntoMaiusculo", chckbxAssuntoEmMaisculo.isSelected());
+				prefs.putBoolean("EXPORTAR_ASSUNTO_MAIUSCULO", chckbxAssuntoEmMaisculo.isSelected());
 			}
 		});
 		chckbxAssuntoEmMaisculo.setFont(new Font("Times New Roman", Font.BOLD, 14));
 		chckbxAssuntoEmMaisculo.setFocusable(false);
 		chckbxAssuntoEmMaisculo.setBounds(217, 166, 208, 23);
-		chckbxAssuntoEmMaisculo.setSelected(prefs.getBoolean("AssuntoMaiusculo", false));
+		chckbxAssuntoEmMaisculo.setSelected(prefs.getBoolean("EXPORTAR_ASSUNTO_MAIUSCULO", false));
 		panel_1.add(chckbxAssuntoEmMaisculo);
 
 		chckbxAssuntoEmNegrito = new JCheckBox("Assunto em Negrito");
 		chckbxAssuntoEmNegrito.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				prefs.putBoolean("AssuntoNegrito", chckbxAssuntoEmNegrito.isSelected());
+				prefs.putBoolean("EXPORTAR_ASSUNTO_NEGRITO", chckbxAssuntoEmNegrito.isSelected());
 			}
 		});
 		chckbxAssuntoEmNegrito.setFont(new Font("Times New Roman", Font.BOLD, 14));
 		chckbxAssuntoEmNegrito.setFocusable(false);
 		chckbxAssuntoEmNegrito.setBounds(428, 166, 208, 23);
-		chckbxAssuntoEmNegrito.setSelected(prefs.getBoolean("AssuntoNegrito", false));
+		chckbxAssuntoEmNegrito.setSelected(prefs.getBoolean("EXPORTAR_ASSUNTO_NEGRITO", false));
 		panel_1.add(chckbxAssuntoEmNegrito);
+
+		chckbxNumeroDaPagina = new JCheckBox("Incluir N\u00FAmero da P\u00E1gina");
+		chckbxNumeroDaPagina.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				prefs.putBoolean("EXPORTAR_INCLUIR_NUMERO_DA_PAGINA", chckbxNumeroDaPagina.isSelected());
+			}
+		});
+		chckbxNumeroDaPagina.setFont(new Font("Times New Roman", Font.BOLD, 14));
+		chckbxNumeroDaPagina.setFocusable(false);
+		chckbxNumeroDaPagina.setSelected(prefs.getBoolean("EXPORTAR_INCLUIR_NUMERO_DA_PAGINA", true));
+		chckbxNumeroDaPagina.setBounds(428, 350, 208, 23);
+		panel_1.add(chckbxNumeroDaPagina);
 
 		// altera o nome das disciplinas
 		ajusteInicial();

@@ -6,13 +6,23 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
+
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -27,6 +37,7 @@ import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
+import javax.swing.filechooser.FileSystemView;
 
 /**
  * @author Madson Paulo Alexandre da Silva
@@ -44,22 +55,25 @@ public class Main extends JFrame {
 	private static JLabel lblPosicao;
 	private static JTextArea txtArea;
 	static int pos = 0;
-	public static final String CONFIGS = "/ConceitosConcursos";
-	public static final String DISCIPLINA1 = CONFIGS + "/Disciplina1";
-	public static final String DISCIPLINA2 = CONFIGS + "/Disciplina2";
-	public static final String DISCIPLINA3 = CONFIGS + "/Disciplina3";
-	public static final String DISCIPLINA4 = CONFIGS + "/Disciplina4";
-	public static final String DISCIPLINA5 = CONFIGS + "/Disciplina5";
-	public static final String DISCIPLINA6 = CONFIGS + "/Disciplina6";
-	public static final String DISCIPLINA7 = CONFIGS + "/Disciplina7";
-	public static final String DISCIPLINA8 = CONFIGS + "/Disciplina8";
-	public static final String DISCIPLINA9 = CONFIGS + "/Disciplina9";
-	public static final String DISCIPLINA10 = CONFIGS + "/Disciplina10";
-	public static final String DISCIPLINA11 = CONFIGS + "/Disciplina11";
-	public static final String DISCIPLINA12 = CONFIGS + "/Disciplina12";
-	public static final String DISCIPLINA13 = CONFIGS + "/Disciplina13";
-	public static final String DISCIPLINA14 = CONFIGS + "/Disciplina14";
-	public static final String DISCIPLINA15 = CONFIGS + "/Disciplina15";
+	public static final String TOKEN_SEPARADOR_LOCAL = "@#&&#@";
+	public static final String TOKEN_SEPARADOR_CHAVE = "@#@@#@";
+	public static final String TOKEN_SEPARADOR_CONTEUDO = "@####@";
+	public static final String CONFIGS = "/MEMORIZADOR_DE_CONCEITOS";
+	public static final String DISCIPLINA1 = CONFIGS + "/DISCIPLINA_01";
+	public static final String DISCIPLINA2 = CONFIGS + "/DISCIPLINA_02";
+	public static final String DISCIPLINA3 = CONFIGS + "/DISCIPLINA_03";
+	public static final String DISCIPLINA4 = CONFIGS + "/DISCIPLINA_04";
+	public static final String DISCIPLINA5 = CONFIGS + "/DISCIPLINA_05";
+	public static final String DISCIPLINA6 = CONFIGS + "/DISCIPLINA_06";
+	public static final String DISCIPLINA7 = CONFIGS + "/DISCIPLINA_07";
+	public static final String DISCIPLINA8 = CONFIGS + "/DISCIPLINA_08";
+	public static final String DISCIPLINA9 = CONFIGS + "/DISCIPLINA_09";
+	public static final String DISCIPLINA10 = CONFIGS + "/DISCIPLINA_10";
+	public static final String DISCIPLINA11 = CONFIGS + "/DISCIPLINA_11";
+	public static final String DISCIPLINA12 = CONFIGS + "/DISCIPLINA_12";
+	public static final String DISCIPLINA13 = CONFIGS + "/DISCIPLINA_13";
+	public static final String DISCIPLINA14 = CONFIGS + "/DISCIPLINA_14";
+	public static final String DISCIPLINA15 = CONFIGS + "/DISCIPLINA_15";
 	public static final String[] ARRAY_DISCIPLINAS = new String[] { DISCIPLINA1, DISCIPLINA2, DISCIPLINA3, DISCIPLINA4,
 			DISCIPLINA5, DISCIPLINA6, DISCIPLINA7, DISCIPLINA8, DISCIPLINA9, DISCIPLINA10, DISCIPLINA11, DISCIPLINA12,
 			DISCIPLINA13, DISCIPLINA14, DISCIPLINA15 };
@@ -75,8 +89,8 @@ public class Main extends JFrame {
 	private JMenuItem mntmCalculadoraDeNota;
 	private JMenuItem mntmAdicionarAssunto;
 	private JMenuItem mntmAlterarremoverAssunto;
-	private JMenuItem mntmImportarAssuntos;
-	private JMenuItem mntmExportarAssuntos;
+	public static JMenuItem mntmImportarAssuntos;
+	public static JMenuItem mntmExportarAssuntos;
 	private JMenuItem mntmSobre;
 	private JMenu mnDisciplinas;
 	private static JCheckBoxMenuItem d1 = new JCheckBoxMenuItem();
@@ -94,10 +108,15 @@ public class Main extends JFrame {
 	private static JCheckBoxMenuItem d13 = new JCheckBoxMenuItem();
 	private static JCheckBoxMenuItem d14 = new JCheckBoxMenuItem();
 	private static JCheckBoxMenuItem d15 = new JCheckBoxMenuItem();
+	private static JCheckBoxMenuItem[] arrayCheckBoxDisciplinas = new JCheckBoxMenuItem[] { d1, d2, d3, d4, d5, d6, d7,
+			d8, d9, d10, d11, d12, d13, d14, d15 };
 	private JMenu mnAssuntos;
 	private JMenuItem mntmAlterarNome;
 	public static Preferences prefs = Preferences.userRoot().node(CONFIGS);
 	private JMenuItem mntmExportarContedoEm;
+	private JMenuItem mntmSobreOsDados;
+	public static JMenuItem mntmApagarTodosOs;
+	private JMenuItem mntmMarcarTodas;
 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -116,14 +135,14 @@ public class Main extends JFrame {
 	 * @return Array com o nome de todas as disciplinas
 	 */
 	public static String[] getNomeDisciplinas() {
-		return new String[] { prefs.get("NOME1", "Disciplina 01"), prefs.get("NOME2", "Disciplina 02"),
-				prefs.get("NOME3", "Disciplina 03"), prefs.get("NOME4", "Disciplina 04"),
-				prefs.get("NOME5", "Disciplina 05"), prefs.get("NOME6", "Disciplina 06"),
-				prefs.get("NOME7", "Disciplina 07"), prefs.get("NOME8", "Disciplina 08"),
-				prefs.get("NOME9", "Disciplina 09"), prefs.get("NOME10", "Disciplina 10"),
-				prefs.get("NOME11", "Disciplina 11"), prefs.get("NOME12", "Disciplina 12"),
-				prefs.get("NOME13", "Disciplina 13"), prefs.get("NOME14", "Disciplina 14"),
-				prefs.get("NOME15", "Disciplina 15") };
+		return new String[] { prefs.get("DISCIPLINA_NOME_01", "Disciplina 01"),
+				prefs.get("DISCIPLINA_NOME_02", "Disciplina 02"), prefs.get("DISCIPLINA_NOME_03", "Disciplina 03"),
+				prefs.get("DISCIPLINA_NOME_04", "Disciplina 04"), prefs.get("DISCIPLINA_NOME_05", "Disciplina 05"),
+				prefs.get("DISCIPLINA_NOME_06", "Disciplina 06"), prefs.get("DISCIPLINA_NOME_07", "Disciplina 07"),
+				prefs.get("DISCIPLINA_NOME_08", "Disciplina 08"), prefs.get("DISCIPLINA_NOME_09", "Disciplina 09"),
+				prefs.get("DISCIPLINA_NOME_10", "Disciplina 10"), prefs.get("DISCIPLINA_NOME_11", "Disciplina 11"),
+				prefs.get("DISCIPLINA_NOME_12", "Disciplina 12"), prefs.get("DISCIPLINA_NOME_13", "Disciplina 13"),
+				prefs.get("DISCIPLINA_NOME_14", "Disciplina 14"), prefs.get("DISCIPLINA_NOME_15", "Disciplina 15") };
 	}
 
 	/**
@@ -133,7 +152,7 @@ public class Main extends JFrame {
 		try {
 			int topicos = 0;
 			for (int i = 0; i < 15; i++) {
-				if (prefs.getBoolean(String.format("DISCIPLINA%d", i + 1), false)) {
+				if (prefs.getBoolean(String.format("DISCIPLINA_ATIVA_%02d", i + 1), false)) {
 					prefs = Preferences.userRoot().node(Main.ARRAY_DISCIPLINAS[i]);
 					topicos += prefs.keys().length;
 					prefs = Preferences.userRoot().node(Main.CONFIGS);
@@ -144,7 +163,7 @@ public class Main extends JFrame {
 			listaTopicos = new String[topicos][2];
 			int pos = 0;
 			for (int i = 0; i < 15; i++) {
-				if (prefs.getBoolean(String.format("DISCIPLINA%d", i + 1), false)) {
+				if (prefs.getBoolean(String.format("DISCIPLINA_ATIVA_%02d", i + 1), false)) {
 					prefs = Preferences.userRoot().node(Main.ARRAY_DISCIPLINAS[i]);
 
 					for (String key : prefs.keys()) {
@@ -207,6 +226,119 @@ public class Main extends JFrame {
 	}
 
 	/**
+	 * Exporta as disciplinas, assuntos e configurações para um arquivo
+	 * 
+	 * @return true caso dados tenham sido exportados com sucesso, false caso contrário
+	 */
+	private boolean exportarDados() {
+		try {
+			JFileChooser fileSaving = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
+			int result = fileSaving.showSaveDialog(null);
+
+			if (result != JFileChooser.APPROVE_OPTION) {
+				return false;
+			}
+
+			File saveSelectedFile = fileSaving.getSelectedFile();
+			FileWriter fW = new FileWriter(saveSelectedFile, false);
+			PrintWriter printWriter = new PrintWriter(fW);
+
+			prefs = Preferences.userRoot().node(CONFIGS);
+			String data = CONFIGS;
+
+			String[] keys = prefs.keys();
+			Arrays.sort(keys);
+			for (String key : keys) {
+				data += TOKEN_SEPARADOR_CHAVE + key + TOKEN_SEPARADOR_CONTEUDO + prefs.get(key, "");
+			}
+
+			for (String disc : ARRAY_DISCIPLINAS) {
+				prefs = Preferences.userRoot().node(disc);
+				String[] assuntos = prefs.keys();
+
+				if (assuntos.length > 0) {
+					Arrays.sort(assuntos);
+					data += TOKEN_SEPARADOR_LOCAL + disc;
+					for (String assunto : assuntos) {
+						data += TOKEN_SEPARADOR_CHAVE + assunto + TOKEN_SEPARADOR_CONTEUDO + prefs.get(assunto, "");
+					}
+				}
+			}
+
+			printWriter.printf(data);
+
+			fW.close();
+			prefs = Preferences.userRoot().node(CONFIGS);
+			JOptionPane.showMessageDialog(null, "Arquivo criado com sucesso em '" + saveSelectedFile.toString() + "'.",
+					"Atenção", JOptionPane.INFORMATION_MESSAGE);
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			prefs = Preferences.userRoot().node(CONFIGS);
+			JOptionPane.showMessageDialog(null,
+					"Não foi possível criar o arquivo em '\" + saveSelectedFile.toString() + \"'.\n"
+							+ "Certifique-se de que a localização seja válida ou, caso o arquivo já exista, que ele esteja fechado.",
+					"Atenção", JOptionPane.WARNING_MESSAGE);
+			return false;
+		}
+	}
+
+	private boolean importarDados() {
+		try {
+			JFileChooser fileOpener = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
+			int result = fileOpener.showOpenDialog(null);
+			if (result != JFileChooser.APPROVE_OPTION) {
+				return false;
+			}
+			File openSelectedFile = fileOpener.getSelectedFile();
+			FileInputStream fis = new FileInputStream(openSelectedFile);
+			BufferedReader reader = new BufferedReader(new InputStreamReader(fis));
+
+			String conteudo = "";
+			ArrayList<String> data = new ArrayList<String>();
+			String line = reader.readLine();
+			while (line != null) {
+				data.add(line);
+				conteudo += line + "\n";
+				line = reader.readLine();
+			}
+			reader.close();
+			fis.close();
+
+			String[] locais = conteudo.split(TOKEN_SEPARADOR_LOCAL);
+			for (String local : locais) {
+				String[] chaves = local.split(TOKEN_SEPARADOR_CHAVE);
+
+				for (String chave : chaves) {
+					String[] val = chave.split(TOKEN_SEPARADOR_CONTEUDO);
+					if (val.length == 2) {
+						if (val[1].equals("true")) {// booleano
+							prefs.putBoolean(val[0], true);
+						} else if (val[1].equals("false")) {// booleano
+							prefs.putBoolean(val[0], false);
+						} else {
+							prefs.put(val[0], val[1]);
+						}
+					} else {
+						prefs = Preferences.userRoot().node(val[0]);
+					}
+				}
+			}
+			prefs = Preferences.userRoot().node(CONFIGS);
+			JOptionPane.showMessageDialog(null, "Dados importados com sucesso. Por favor, reincie a aplicação\n"
+					+ " para que as alterações tenham efeito.", "Atenção", JOptionPane.INFORMATION_MESSAGE);
+			return true;
+		} catch (Exception f) {
+			prefs = Preferences.userRoot().node(CONFIGS);
+			JOptionPane.showMessageDialog(null,
+					"Não foi possível importar os dados do arquivo selecionado. Ele pode ser inválido ou estar corrompido.",
+					"Atenção", JOptionPane.WARNING_MESSAGE);
+			f.printStackTrace();
+			return false;
+		}
+	}
+
+	/**
 	 * Se existir algum assunto a ser exibido, exibe-o
 	 */
 	public static void atualizarAssuntoConteudo() {
@@ -220,7 +352,7 @@ public class Main extends JFrame {
 	}
 
 	public Main() {
-		setTitle("Revisor de Assuntos");
+		setTitle("Memorizador de Conceitos");
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 860, 540);
 
@@ -233,8 +365,7 @@ public class Main extends JFrame {
 		mntmImportarAssuntos = new JMenuItem("Importar Disciplinas e Assuntos");
 		mntmImportarAssuntos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				JOptionPane.showMessageDialog(null, "Funcionalidade ainda não implementada.", "Atenção",
-						JOptionPane.WARNING_MESSAGE);
+				importarDados();
 			}
 		});
 		mnArquivo.add(mntmImportarAssuntos);
@@ -242,8 +373,7 @@ public class Main extends JFrame {
 		mntmExportarAssuntos = new JMenuItem("Exportar Disciplinas e Assuntos");
 		mntmExportarAssuntos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				JOptionPane.showMessageDialog(null, "Funcionalidade ainda não implementada.", "Atenção",
-						JOptionPane.WARNING_MESSAGE);
+				exportarDados();
 			}
 		});
 		mnArquivo.add(mntmExportarAssuntos);
@@ -257,157 +387,200 @@ public class Main extends JFrame {
 		});
 		mnArquivo.add(mntmExportarContedoEm);
 
+		mntmApagarTodosOs = new JMenuItem("Apagar Todos os Dados");
+		mntmApagarTodosOs.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					if (JOptionPane.showConfirmDialog(null,
+							"Tem certeza que deseja excluir todas as configurações deste aplicativo, assim como as disciplinas e assuntos salvos?\n\nNote que esta ação é irreversível. Considere exportar os dados antes para manter um backup.",
+							"Atenção", JOptionPane.YES_NO_OPTION) == 0) {
+						int cont = 0;
+						prefs = Preferences.userRoot().node(CONFIGS);
+
+						for (String key : prefs.keys()) {
+							prefs.remove(key);
+							cont++;
+						}
+
+						for (String disc : ARRAY_DISCIPLINAS) {
+							prefs = Preferences.userRoot().node(disc);
+							for (String assunto : prefs.keys()) {
+								prefs.remove(assunto);
+								cont++;
+							}
+						}
+
+						if (cont > 0) {
+							JOptionPane.showMessageDialog(null,
+									"Todos os " + cont + " dados foram excluídos com sucesso.", "Atenção",
+									JOptionPane.INFORMATION_MESSAGE);
+						} else {
+							JOptionPane.showMessageDialog(null,
+									"Não havia nenhum dado deste aplicativo salvo em seu computador para excluir.",
+									"Atenção", JOptionPane.INFORMATION_MESSAGE);
+						}
+					}
+
+					prefs = Preferences.userRoot().node(CONFIGS);
+				} catch (Exception f) {
+					prefs = Preferences.userRoot().node(CONFIGS);
+					f.printStackTrace();
+				}
+			}
+		});
+		mnArquivo.add(mntmApagarTodosOs);
+
 		mnDisciplinas = new JMenu("Disciplinas");
 		menuBar.add(mnDisciplinas);
 
-		d1 = new JCheckBoxMenuItem(prefs.get("NOME1", "Disciplina 1"));
+		d1 = new JCheckBoxMenuItem(prefs.get("DISCIPLINA_NOME_01", "Disciplina 01"));
 		d1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				prefs.putBoolean("DISCIPLINA1", d1.isSelected());
+				prefs.putBoolean("DISCIPLINA_ATIVA_01", d1.isSelected());
 				atualizarInterface();
 			}
 		});
-		d1.setSelected(prefs.getBoolean("DISCIPLINA1", false));
+		d1.setSelected(prefs.getBoolean("DISCIPLINA_ATIVA_01", false));
 		mnDisciplinas.add(d1);
 
-		d2 = new JCheckBoxMenuItem(prefs.get("NOME2", "Disciplina 02"));
+		d2 = new JCheckBoxMenuItem(prefs.get("DISCIPLINA_NOME_02", "Disciplina 02"));
 		d2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				prefs.putBoolean("DISCIPLINA2", d2.isSelected());
+				prefs.putBoolean("DISCIPLINA_ATIVA_02", d2.isSelected());
 				atualizarInterface();
 			}
 		});
-		d2.setSelected(prefs.getBoolean("DISCIPLINA2", false));
+		d2.setSelected(prefs.getBoolean("DISCIPLINA_ATIVA_02", false));
 		mnDisciplinas.add(d2);
 
-		d3 = new JCheckBoxMenuItem(prefs.get("NOME3", "Disciplina 03"));
+		d3 = new JCheckBoxMenuItem(prefs.get("DISCIPLINA_NOME_03", "Disciplina 03"));
 		d3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				prefs.putBoolean("DISCIPLINA3", d3.isSelected());
+				prefs.putBoolean("DISCIPLINA_ATIVA_03", d3.isSelected());
 				atualizarInterface();
 			}
 		});
-		d3.setSelected(prefs.getBoolean("DISCIPLINA3", false));
+		d3.setSelected(prefs.getBoolean("DISCIPLINA_ATIVA_03", false));
 		mnDisciplinas.add(d3);
 
-		d4 = new JCheckBoxMenuItem(prefs.get("NOME4", "Disciplina 04"));
+		d4 = new JCheckBoxMenuItem(prefs.get("DISCIPLINA_NOME_04", "Disciplina 04"));
 		d4.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				prefs.putBoolean("DISCIPLINA4", d4.isSelected());
+				prefs.putBoolean("DISCIPLINA_ATIVA_04", d4.isSelected());
 				atualizarInterface();
 			}
 		});
-		d4.setSelected(prefs.getBoolean("DISCIPLINA4", false));
+		d4.setSelected(prefs.getBoolean("DISCIPLINA_ATIVA_04", false));
 		mnDisciplinas.add(d4);
 
-		d5 = new JCheckBoxMenuItem(prefs.get("NOME5", "Disciplina 05"));
+		d5 = new JCheckBoxMenuItem(prefs.get("DISCIPLINA_NOME_05", "Disciplina 05"));
 		d5.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				prefs.putBoolean("DISCIPLINA5", d5.isSelected());
+				prefs.putBoolean("DISCIPLINA_ATIVA_05", d5.isSelected());
 				atualizarInterface();
 			}
 		});
-		d5.setSelected(prefs.getBoolean("DISCIPLINA5", false));
+		d5.setSelected(prefs.getBoolean("DISCIPLINA_ATIVA_05", false));
 		mnDisciplinas.add(d5);
 
-		d6 = new JCheckBoxMenuItem(prefs.get("NOME6", "Disciplina 06"));
+		d6 = new JCheckBoxMenuItem(prefs.get("DISCIPLINA_NOME_06", "Disciplina 06"));
 		d6.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				prefs.putBoolean("DISCIPLINA6", d6.isSelected());
+				prefs.putBoolean("DISCIPLINA_ATIVA_06", d6.isSelected());
 				atualizarInterface();
 			}
 		});
-		d6.setSelected(prefs.getBoolean("DISCIPLINA6", false));
+		d6.setSelected(prefs.getBoolean("DISCIPLINA_ATIVA_06", false));
 		mnDisciplinas.add(d6);
 
-		d7 = new JCheckBoxMenuItem(prefs.get("NOME7", "Disciplina 07"));
+		d7 = new JCheckBoxMenuItem(prefs.get("DISCIPLINA_NOME_07", "Disciplina 07"));
 		d7.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				prefs.putBoolean("DISCIPLINA7", d7.isSelected());
+				prefs.putBoolean("DISCIPLINA_ATIVA_07", d7.isSelected());
 				atualizarInterface();
 			}
 		});
-		d7.setSelected(prefs.getBoolean("DISCIPLINA7", false));
+		d7.setSelected(prefs.getBoolean("DISCIPLINA_ATIVA_07", false));
 		mnDisciplinas.add(d7);
 
-		d8 = new JCheckBoxMenuItem(prefs.get("NOME8", "Disciplina 08"));
+		d8 = new JCheckBoxMenuItem(prefs.get("DISCIPLINA_NOME_08", "Disciplina 08"));
 		d8.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				prefs.putBoolean("DISCIPLINA8", d8.isSelected());
+				prefs.putBoolean("DISCIPLINA_ATIVA_08", d8.isSelected());
 				atualizarInterface();
 			}
 		});
-		d8.setSelected(prefs.getBoolean("DISCIPLINA8", false));
+		d8.setSelected(prefs.getBoolean("DISCIPLINA_ATIVA_08", false));
 		mnDisciplinas.add(d8);
 
-		d9 = new JCheckBoxMenuItem(prefs.get("NOME9", "Disciplina 09"));
+		d9 = new JCheckBoxMenuItem(prefs.get("DISCIPLINA_NOME_09", "Disciplina 09"));
 		d9.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				prefs.putBoolean("DISCIPLINA9", d9.isSelected());
+				prefs.putBoolean("DISCIPLINA_ATIVA_09", d9.isSelected());
 				atualizarInterface();
 			}
 		});
-		d9.setSelected(prefs.getBoolean("DISCIPLINA9", false));
+		d9.setSelected(prefs.getBoolean("DISCIPLINA_ATIVA_09", false));
 		mnDisciplinas.add(d9);
 
-		d10 = new JCheckBoxMenuItem(prefs.get("NOME10", "Disciplina 10"));
+		d10 = new JCheckBoxMenuItem(prefs.get("DISCIPLINA_NOME_10", "Disciplina 10"));
 		d10.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				prefs.putBoolean("DISCIPLINA10", d10.isSelected());
+				prefs.putBoolean("DISCIPLINA_ATIVA_10", d10.isSelected());
 				atualizarInterface();
 			}
 		});
-		d10.setSelected(prefs.getBoolean("DISCIPLINA10", false));
+		d10.setSelected(prefs.getBoolean("DISCIPLINA_ATIVA_10", false));
 		mnDisciplinas.add(d10);
 
-		d11 = new JCheckBoxMenuItem(prefs.get("NOME11", "Disciplina 11"));
+		d11 = new JCheckBoxMenuItem(prefs.get("DISCIPLINA_NOME_11", "Disciplina 11"));
 		d11.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				prefs.putBoolean("DISCIPLINA11", d11.isSelected());
+				prefs.putBoolean("DISCIPLINA_ATIVA_11", d11.isSelected());
 				atualizarInterface();
 			}
 		});
-		d11.setSelected(prefs.getBoolean("DISCIPLINA11", false));
+		d11.setSelected(prefs.getBoolean("DISCIPLINA_ATIVA_11", false));
 		mnDisciplinas.add(d11);
 
-		d12 = new JCheckBoxMenuItem(prefs.get("NOME12", "Disciplina 12"));
+		d12 = new JCheckBoxMenuItem(prefs.get("DISCIPLINA_NOME_12", "Disciplina 12"));
 		d12.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				prefs.putBoolean("DISCIPLINA12", d12.isSelected());
+				prefs.putBoolean("DISCIPLINA_ATIVA_12", d12.isSelected());
 				atualizarInterface();
 			}
 		});
-		d12.setSelected(prefs.getBoolean("DISCIPLINA12", false));
+		d12.setSelected(prefs.getBoolean("DISCIPLINA_ATIVA_12", false));
 		mnDisciplinas.add(d12);
 
-		d13 = new JCheckBoxMenuItem(prefs.get("NOME13", "Disciplina 13"));
+		d13 = new JCheckBoxMenuItem(prefs.get("DISCIPLINA_NOME_13", "Disciplina 13"));
 		d13.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				prefs.putBoolean("DISCIPLINA13", d13.isSelected());
+				prefs.putBoolean("DISCIPLINA_ATIVA_13", d13.isSelected());
 				atualizarInterface();
 			}
 		});
-		d13.setSelected(prefs.getBoolean("DISCIPLINA13", false));
+		d13.setSelected(prefs.getBoolean("DISCIPLINA_ATIVA_13", false));
 		mnDisciplinas.add(d13);
 
-		d14 = new JCheckBoxMenuItem(prefs.get("NOME14", "Disciplina 14"));
+		d14 = new JCheckBoxMenuItem(prefs.get("DISCIPLINA_NOME_14", "Disciplina 14"));
 		d14.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				prefs.putBoolean("DISCIPLINA14", d14.isSelected());
+				prefs.putBoolean("DISCIPLINA_ATIVA_14", d14.isSelected());
 				atualizarInterface();
 			}
 		});
-		d14.setSelected(prefs.getBoolean("DISCIPLINA14", false));
+		d14.setSelected(prefs.getBoolean("DISCIPLINA_ATIVA_14", false));
 		mnDisciplinas.add(d14);
 
-		d15 = new JCheckBoxMenuItem(prefs.get("NOME15", "Disciplina 15"));
+		d15 = new JCheckBoxMenuItem(prefs.get("DISCIPLINA_NOME_15", "Disciplina 15"));
 		d15.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				prefs.putBoolean("DISCIPLINA15", d15.isSelected());
+				prefs.putBoolean("DISCIPLINA_ATIVA_15", d15.isSelected());
 				atualizarInterface();
 			}
 		});
-		d15.setSelected(prefs.getBoolean("DISCIPLINA15", false));
+		d15.setSelected(prefs.getBoolean("DISCIPLINA_ATIVA_15", false));
 		mnDisciplinas.add(d15);
 
 		mntmAlterarNome = new JMenuItem("Alterar Nome");
@@ -418,6 +591,27 @@ public class Main extends JFrame {
 			}
 		});
 		mnDisciplinas.add(mntmAlterarNome);
+
+		mntmMarcarTodas = new JMenuItem("Marcar Todas");
+		mntmMarcarTodas.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				arrayCheckBoxDisciplinas = new JCheckBoxMenuItem[] { d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12,
+						d13, d14, d15 };
+				boolean todosSelecionados = true;
+				for (JCheckBoxMenuItem check : arrayCheckBoxDisciplinas) {
+					if (check.isSelected() == false) {
+						check.doClick();
+						todosSelecionados = false;
+					}
+				}
+				if (todosSelecionados) {
+					for (JCheckBoxMenuItem check : arrayCheckBoxDisciplinas) {
+						check.doClick();
+					}
+				}
+			}
+		});
+		mnDisciplinas.add(mntmMarcarTodas);
 
 		mnAssuntos = new JMenu("Assuntos");
 		menuBar.add(mnAssuntos);
@@ -455,13 +649,22 @@ public class Main extends JFrame {
 		mnAjuda = new JMenu("Ajuda");
 		menuBar.add(mnAjuda);
 
-		mntmSobre = new JMenuItem("Sobre");
+		mntmSobre = new JMenuItem("Sobre o Aplicativo");
 		mntmSobre.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				Sobre sobre = new Sobre();
 				sobre.setVisible(true);
 			}
 		});
+
+		mntmSobreOsDados = new JMenuItem("Sobre os Dados");
+		mntmSobreOsDados.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				SobreOsDados dados = new SobreOsDados();
+				dados.setVisible(true);
+			}
+		});
+		mnAjuda.add(mntmSobreOsDados);
 		mnAjuda.add(mntmSobre);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -550,10 +753,10 @@ public class Main extends JFrame {
 		chckbxManter = new JCheckBox("Manter Vis\u00EDvel");
 		chckbxManter.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				prefs.putBoolean("VISIVEL", chckbxManter.isSelected());
+				prefs.putBoolean("EXIBIR_CONTEUDO", chckbxManter.isSelected());
 			}
 		});
-		chckbxManter.setSelected(prefs.getBoolean("VISIVEL", true));
+		chckbxManter.setSelected(prefs.getBoolean("EXIBIR_CONTEUDO", true));
 		chckbxManter.setToolTipText("Mant\u00E9m o conte\u00FAdo sempre vis\u00EDvel");
 		chckbxManter.setFocusable(false);
 		panel.add(chckbxManter);

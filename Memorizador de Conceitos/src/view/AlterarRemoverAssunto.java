@@ -93,19 +93,22 @@ public class AlterarRemoverAssunto extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				prefs = Preferences.userRoot().node(Main.ARRAY_DISCIPLINAS[disciplinas.getSelectedIndex()]);
 
-				if (conteudo.getText().length() > 0) {
-					prefs.put(assuntos.getSelectedItem().toString(), conteudo.getText());
-					JOptionPane.showMessageDialog(null, "Alteração realizada com sucesso.", "Atenção",
-							JOptionPane.INFORMATION_MESSAGE);
+				if (assuntos.getModel().getSize() > 0) {
+					if (conteudo.getText().length() > 0) {
+						prefs.put(assuntos.getSelectedItem().toString(), conteudo.getText());
+						JOptionPane.showMessageDialog(null, "Alteração realizada com sucesso.", "Atenção",
+								JOptionPane.INFORMATION_MESSAGE);
 
-					Main.atualizarListaTopicos();
-					Main.atualizarAssuntoConteudo();
-					Main.atualizarMarcadorPosicao();
-				} else {
-					JOptionPane.showMessageDialog(null, "Conteúdo não pode ser vazio. A alteração não foi realizada.",
-							"Atenção", JOptionPane.WARNING_MESSAGE);
+						Main.atualizarListaTopicos();
+						Main.atualizarAssuntoConteudo();
+						Main.atualizarMarcadorPosicao();
+					} else {
+						JOptionPane.showMessageDialog(null,
+								"Conteúdo não pode ser vazio. A alteração não foi realizada.", "Atenção",
+								JOptionPane.WARNING_MESSAGE);
+					}
 				}
-
+				
 				prefs = Preferences.userRoot().node(Main.CONFIGS);
 			}
 		});
@@ -136,19 +139,21 @@ public class AlterarRemoverAssunto extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				prefs = Preferences.userRoot().node(Main.ARRAY_DISCIPLINAS[disciplinas.getSelectedIndex()]);
 
-				if (JOptionPane.showConfirmDialog(null,
-						String.format("Tem certeza que deseja remover o assunto '%s', da disciplina '%s'?",
-								assuntos.getSelectedItem().toString(), disciplinas.getSelectedItem().toString()),
-						"Atenção", JOptionPane.YES_NO_OPTION) == 0) {
+				if (assuntos.getModel().getSize() > 0) {
+					if (JOptionPane.showConfirmDialog(null,
+							String.format("Tem certeza que deseja remover o assunto '%s', da disciplina '%s'?",
+									assuntos.getSelectedItem().toString(), disciplinas.getSelectedItem().toString()),
+							"Atenção", JOptionPane.YES_NO_OPTION) == 0) {
 
-					prefs.remove(assuntos.getSelectedItem().toString());
-					preencherCampos();
+						prefs.remove(assuntos.getSelectedItem().toString());
+						preencherCampos();
 
-					JOptionPane.showMessageDialog(null, "Exclusão realizada com sucesso.", "Atenção",
-							JOptionPane.INFORMATION_MESSAGE);
-					Main.atualizarListaTopicos();
-					Main.atualizarAssuntoConteudo();
-					Main.atualizarMarcadorPosicao();
+						JOptionPane.showMessageDialog(null, "Exclusão realizada com sucesso.", "Atenção",
+								JOptionPane.INFORMATION_MESSAGE);
+						Main.atualizarListaTopicos();
+						Main.atualizarAssuntoConteudo();
+						Main.atualizarMarcadorPosicao();
+					}
 				}
 
 				prefs = Preferences.userRoot().node(Main.CONFIGS);
